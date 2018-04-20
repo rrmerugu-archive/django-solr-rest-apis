@@ -18,23 +18,24 @@ class SolrAPIView(TemplateView):
 
     http://localhost:8000/api/indexing/solr/weblinks?q=*:*
     http://localhost:8000/api/indexing/solr/weblinks?page=4&fl=status_i,domain_s,id,created_dt,headers_Server_s&rows=6&facet_field=status_i,domain_s
-
+    http://localhost:8000/api/indexing/solr/weblinks?page=4&fl=status_i,domain_s,id,created_dt,headers_Server_s&rows=6&facet_field=status_i,domain_s,headers_Server_s
     """
     cached_solr_connections = {}
 
     def extract_from_query(self):
         rows = self.request.GET.get("rows", 20)
         page = self.request.GET.get('page', 1)
-        facet_fields = self.request.GET.get('facet_field', "").split(",")
+        facet_fields = self.request.GET.get('facet_field', "")
         solr_kwargs = {
             "domain_s": "blog.github.com",
             "fl": self.request.GET.get('fl', 'id').split(","),
             "rows": int(rows),
             "start": int(rows) * (int(page) - 1),
         }
-        if len(facet_fields)>0:
+        print (facet_fields)
+        if len(facet_fields) > 0:
             solr_kwargs['facet'] = "on"
-            solr_kwargs['facet.field'] = facet_fields
+            solr_kwargs['facet.field'] = facet_fields.split(",")
         search_query = self.request.GET.get('search_query', "*:*")
 
         q = search_query
@@ -73,11 +74,13 @@ class SolrAPIView(TemplateView):
             solr_connection = self.cached_solr_connections.get(collection_name)
 
         solr_kwargs, q = self.extract_from_query()
-        logger.debug(solr_kwargs, q)
+        logger.info(solr_kwargs, q)
+        print(solr_kwargs, q)
 
         try:
             data = solr_connection.search(q, **solr_kwargs).__dict__
         except Exception as e:
+            print(e)
             return JsonResponse({"message": "Failed to connect to the collection: {}".format(collection_name)},
                                 status=400)
 
