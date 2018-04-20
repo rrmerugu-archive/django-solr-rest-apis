@@ -21,6 +21,9 @@ class SolrAPIView(TemplateView):
     http://localhost:8000/api/indexing/solr/weblinks?page=4&fl=status_i,domain_s,id,created_dt,headers_Server_s&rows=6&facet_fields=status_i,domain_s,headers_Server_s
 
     &search_query=status_i:404
+
+    &start_date=2018-01-12
+    &end_date=2018-01-13
     """
     cached_solr_connections = {}
 
@@ -50,7 +53,6 @@ class SolrAPIView(TemplateView):
             "fl": fields,
             "rows": int(rows),
             "start": int(rows) * (int(page) - 1),
-            # "fq": ,
             "q": search_query
         }
         print(facet_fields)
