@@ -7,7 +7,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 SOLR_HOST = settings.__dict__.get('SOLR_HOST', "localhost")
 SOLR_HOST_PORT = settings.__dict__.get('SOLR_HOST_PORT', "8983")
 
@@ -51,12 +50,10 @@ class SolrAPIView(TemplateView):
         for k, v in url_query_dict.items():
             if k.startswith("fq__"):
                 field_queries_dict[k.replace("fq__", "")] = v
-        print(url_query_dict)
 
         if len(field_queries_dict.keys()) == 0:
             field_queries_dict = {"*": "*"}
         search_query = " AND ".join(["{}:{}".format(k, v) for k, v in field_queries_dict.items()])
-        print(search_query)
         solr_kwargs = {
             "fl": fields,
             "rows": int(rows),
@@ -64,7 +61,6 @@ class SolrAPIView(TemplateView):
         }
 
         solr_kwargs["q"] = search_query
-        print(facet_fields)
         if len(facet_fields) > 0:
             solr_kwargs['facet'] = "on"
             solr_kwargs['facet.field'] = facet_fields.split(",")
@@ -104,11 +100,9 @@ class SolrAPIView(TemplateView):
 
         solr_kwargs, search_query = self.extract_from_query()
         logger.info(solr_kwargs)
-        print(solr_kwargs)
 
         try:
             data = solr_connection.search(**solr_kwargs).__dict__
-            print(solr_connection)
         except Exception as e:
             print(e)
             return JsonResponse({"message": "Failed to connect to the collection: {}".format(collection_name)},
