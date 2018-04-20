@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.conf import settings
 import pysolr
 import logging
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -83,10 +84,29 @@ class SolrAPIView(TemplateView):
                 first = True
         return data_cleaned
 
+    def clean_docs(self, docs):
+        cleaned_docs = []
+        for doc in docs:
+            cleaned_doc = {}
+            for k, v in doc.items():
+                if k.endswith("_dt"):
+                    date_string = v.strip("Z")
+                    if "." in date_string:
+                        date_string = date_string.split(".")[0]
+                    date_object = datetime.datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S')
+                    cleaned_doc[k] = date_object
+                else:
+                    cleaned_doc[k] = v
+                cleaned_docs.append(cleaned_doc)
+
+        return cleaned_docs
+
     def clean_data(self, data):
         cleaned_data = data
         for k, v in data.get('facets', {}).get('facet_fields', {}).items():
             cleaned_data['facets']['facet_fields'][k] = self.convert_facets_field_to_dict(v)
+
+        cleaned_data['docs'] = self.clean_docs(data.get("docs", []))
         return cleaned_data
 
     def get(self, request, *args, **kwargs):
