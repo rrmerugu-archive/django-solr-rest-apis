@@ -14,11 +14,7 @@ SOLR_HOST_PORT = settings.__dict__.get('SOLR_HOST_PORT', "8983")
 
 class SolrAPIView(TemplateView):
     """
-
-    http://localhost:8000/api/indexing/solr/weblinks?q=*:*
-    http://localhost:8000/api/indexing/solr/weblinks?page=4&fl=status_i,domain_s,id,created_dt,headers_Server_s&rows=6&facet_fields=status_i,domain_s
-    http://localhost:8000/api/indexing/solr/weblinks?page=4&fl=status_i,domain_s,id,created_dt,headers_Server_s&rows=6&facet_fields=status_i,domain_s,headers_Server_s
-
+    http://localhost:8000/api/indexing/solr/weblinks (weblinks is collections name)
 
     &fl=id,domain_s
     &page=4
