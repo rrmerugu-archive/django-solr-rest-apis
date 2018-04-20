@@ -6,7 +6,6 @@ import pysolr
 import logging
 
 logger = logging.getLogger(__name__)
-# Create your views here.
 
 
 SOLR_HOST = settings.__dict__.get('SOLR_HOST', "localhost")
@@ -20,8 +19,11 @@ class SolrAPIView(TemplateView):
     http://localhost:8000/api/indexing/solr/weblinks?page=4&fl=status_i,domain_s,id,created_dt,headers_Server_s&rows=6&facet_fields=status_i,domain_s
     http://localhost:8000/api/indexing/solr/weblinks?page=4&fl=status_i,domain_s,id,created_dt,headers_Server_s&rows=6&facet_fields=status_i,domain_s,headers_Server_s
 
-    &search_query=status_i:404
 
+    &fl=id,domain_s
+    &page=4
+    &rows=50
+    &fq__status_i=404&fq__domain_s=scienceblogs.com
     &start_date=2018-01-12
     &end_date=2018-01-13
     """
@@ -45,16 +47,23 @@ class SolrAPIView(TemplateView):
         if "fl" in url_query_dict:
             del url_query_dict['fl']
 
-        search_query = self.request.GET.get('search_query', "*:*")
-
+        field_queries_dict = {}
+        for k, v in url_query_dict.items():
+            if k.startswith("fq__"):
+                field_queries_dict[k.replace("fq__", "")] = v
         print(url_query_dict)
 
+        if len(field_queries_dict.keys()) == 0:
+            field_queries_dict = {"*": "*"}
+        search_query = " AND ".join(["{}:{}".format(k, v) for k, v in field_queries_dict.items()])
+        print(search_query)
         solr_kwargs = {
             "fl": fields,
             "rows": int(rows),
             "start": int(rows) * (int(page) - 1),
-            "q": search_query
         }
+
+        solr_kwargs["q"] = search_query
         print(facet_fields)
         if len(facet_fields) > 0:
             solr_kwargs['facet'] = "on"
