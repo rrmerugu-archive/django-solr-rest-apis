@@ -7,7 +7,7 @@ the json of the solr result.
 ## Install the module
 
 ```bash
-pip install git+https://github.com/rrmerugu/trawler.git#egg=trawler
+pip install git+https://github.com/rrmerugu/django-solr-rest-apis.git#egg=django_solr_rest_apis
 
 ```
 
