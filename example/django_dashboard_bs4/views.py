@@ -2,6 +2,7 @@ from django.views.generic import TemplateView
 from django.http import JsonResponse
 import logging
 import random
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ widgets = [
         }],
         'paginate_by': 6,
         'filter_date_field': "created_dt",
+
         # 'facet_range': 'true'
     },
     {
@@ -46,6 +48,10 @@ class DjangoDashboardBS4Base(TemplateView):
         widgets_cleaned = []
         for widget in widgets:
             widget['widget_id'] = random.randint(312312, 1001231123)
+            if widget.get('start_date') is None:
+                widget['start_date'] = str(datetime.date.today() - datetime.timedelta(days=7));
+            if widget.get('end_date') is None:
+                widget['end_date'] = str(datetime.date.today())
             widgets_cleaned.append(widget)
         return {
             "widgets": widgets_cleaned

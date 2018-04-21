@@ -17,7 +17,7 @@
                     <button id="{{widget.widget_id}}date_selector"
                             class="btn btn-sm btn-outline-secondary float-right dropdown-toggle">
                         <span></span>
-                        This week
+
                     </button>
                 </div>
             </div>
@@ -142,8 +142,21 @@
             //check there are any dates selected, if yes use it or null
 
             var selected_dates = get_selected_dates();
-            console.log(selected_dates.selected_start_date, selected_dates.selected_end_date,);
-            get_page_date(page_num, selected_dates.selected_start_date, selected_dates.selected_end_date); // no start and end date added;
+            console.log(selected_dates.selected_end_date);
+            if (selected_dates.selected_start_date){
+                var selected_start_date = selected_dates.selected_start_date;
+
+            } else{
+                var selected_start_date = widget_config.start_date;
+
+            }
+            if (selected_dates.selected_end_date){
+                var selected_end_date = selected_dates.selected_end_date;
+            }else{
+                var selected_end_date = widget_config.end_date;
+            }
+
+            get_page_date(page_num, selected_start_date, selected_end_date); // no start and end date added;
         }
 
 
@@ -348,6 +361,9 @@
             var api_url = generate_query(widget_config, selected_start_date, selected_end_date, page, query_dict);
 
 
+            console.log(selected_start_date)
+            $('#{{widget.widget_id}}date_selector').html(moment(selected_start_date).format('MMMM D, YYYY') + " - "+ moment(selected_end_date).format('MMMM D, YYYY'));
+
             $.get(api_url, function (data, status) {
                 var docs = data.data.docs;
 
@@ -368,6 +384,7 @@
                     $('#{{widget.widget_id}}data').html("<p>No data exist with this criteria</p>");
                     $('#{{widget.widget_id}}pagination').html("");
                 }
+
 
             });
         }
