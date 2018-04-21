@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.http import JsonResponse
 from django.conf import settings
@@ -20,8 +19,10 @@ class SolrAPIView(TemplateView):
     &page=4
     &rows=50
     &fq__status_i=404&fq__domain_s=scienceblogs.com
-    &start_date=2018-01-12
-    &end_date=2018-01-13
+    &fq__created_dt=[2015-01-11T00:00:00Z TO 2018-04-11T00:00:00Z]
+
+
+    http://localhost:8000/api/indexing/solr/weblinks?page=1&facet_fields=status_i,domain_s&fl=id,url_s,created_dt&fq__created_dt=[2018-03-15T12:22:45Z%20TO%202018-03-15T12:22:50Z]
     """
     cached_solr_connections = {}
 
@@ -36,8 +37,8 @@ class SolrAPIView(TemplateView):
             del url_query_dict['page']
 
         facet_fields = url_query_dict.get('facet_fields', "")
-        if "facet_field" in url_query_dict:
-            del url_query_dict['facet_field']
+        if "facet_fields" in url_query_dict:
+            del url_query_dict['facet_fields']
 
         fields = url_query_dict.get('fl', '*').split(",")
         if "fl" in url_query_dict:
@@ -47,9 +48,11 @@ class SolrAPIView(TemplateView):
         for k, v in url_query_dict.items():
             if k.startswith("fq__"):
                 field_queries_dict[k.replace("fq__", "")] = v
+            else:
+                field_queries_dict[k] = v
 
         if len(field_queries_dict.keys()) == 0:
-            field_queries_dict = {"*": "*"}
+            final_query_dict = {"*": "*"}
         search_query = " AND ".join(["{}:{}".format(k, v) for k, v in field_queries_dict.items()])
         solr_kwargs = {
             "fl": fields,
@@ -130,9 +133,3 @@ class SolrAPIView(TemplateView):
         cleaned_data = self.clean_data(data)
 
         return JsonResponse({"data": cleaned_data, "message": "Ok"}, status=200)
-
-
-class ESApiView(TemplateView):
-    es_index = None
-    es_data_type = None
-    cached_collections = []
