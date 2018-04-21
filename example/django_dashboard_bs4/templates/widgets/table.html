@@ -1,54 +1,57 @@
-<div class="panel panel-default" id="{{widget.widget_id}}">
-    <div class="row">
-        <div class="col-md-8">
-            <h3>WebLinks Status</h3>
-        </div>
-        <div class="col-md-4">
 
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-8">
-            <div id="{{widget.widget_id}}filters"></div>
-        </div>
-        <div class="col-md-4">
-            <button id="{{widget.widget_id}}date_selector"
-                    class="btn btn-sm btn-outline-secondary dropdown-toggle">
-                <span></span>
-                This week
-            </button>
 
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            {% if widget.facet_range %}
-            <div id="{{widget.widget_id}}graph">
-                <div id="chart{{widget.widget_id}}">
-                    <svg></svg>
+    <div class="card mb-4 mt-1"  id="{{widget.widget_id}}">
+          <div class="card-body">
+            <div class="row">
+               <div class="col-md-12">
+                    <h3 id="{{widget.widget_id}}title"></h3>
+                    <hr>
                 </div>
             </div>
-            {% endif %}
-            <div id="{{widget.widget_id}}data">
+              <div class="row">
+
+                <div class="col-md-8">
+                    <div id="{{widget.widget_id}}filters"></div>
+                </div>
+                <div class="col-md-4">
+                    <button id="{{widget.widget_id}}date_selector"
+                            class="btn btn-sm btn-outline-secondary float-right dropdown-toggle">
+                        <span></span>
+                        This week
+                    </button>
+                </div>
             </div>
-            <div class="">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div id="{{widget.widget_id}}pagination">
+
+
+            <div class="row">
+
+                <div class="col-md-12">
+                    {% if widget.facet_range %}
+                    <div id="{{widget.widget_id}}graph">
+                        <div id="chart{{widget.widget_id}}">
+                            <svg></svg>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <p id="{{widget.widget_id}}pagination-text"></p>
+                    {% endif %}
+                    <div id="{{widget.widget_id}}data">
                     </div>
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div id="{{widget.widget_id}}pagination">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <p id="{{widget.widget_id}}pagination-text"></p>
+                            </div>
 
+                        </div>
+                    </div>
+                    <input type="hidden" id="{{widget.widget_id}}page" value="0">
                 </div>
             </div>
-            <input type="hidden" id="{{widget.widget_id}}page" value="0">
         </div>
     </div>
-
-</div>
 
 
 {% block django_dashboard_bs4_media %}
@@ -61,6 +64,8 @@
 
         var widget_config = {{widget | safe}};
 
+
+        $('#{{widget.widget_id}}title').html(widget_config.name);
         function generate_query(widget_config, selected_start_date, selected_end_date, page, query_dict) {
 
             function format_date_for_solr(dd) {
