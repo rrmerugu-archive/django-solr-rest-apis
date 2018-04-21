@@ -129,17 +129,13 @@
 
             var filter_nav = '<ul class="nav">';
             $.each(widget_config['filters'], function (i, v) {
-                console.log(v);
                 filter_nav += '<li class="nav-item"> <a class="nav-link {{widget.widget_id}}filter_class" data-key="' + v.key + '" data-value="' + v.value + '" href="#">' + v.display_name + '</a></li>'
             });
             $('#{{widget.widget_id}}filters').html(filter_nav);
 
             $('.{{widget.widget_id}}filter_class').click(function () {
                 $el = $(this);
-                console.log($el);
                 var selected_dates = get_selected_dates();
-                console.log(selected_dates.selected_start_date, selected_dates.selected_end_date);
-
                 selected_filter = {}
                 selected_filter[$el.attr('data-key')] = $el.attr('data-value');
                 get_page_date(1, selected_dates.selected_start_date, selected_dates.selected_end_date, selected_filter); // no start and end date added;
@@ -200,7 +196,6 @@
         function process_date_filter(start, end) {
             var selected_start_date = start.format('YYYY-MM-D');
             var selected_end_date = end.format('YYYY-MM-D');
-            console.log(selected_start_date, selected_end_date);
 
             $('#' + widget_id + 'date_selector span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
             page = 1;
