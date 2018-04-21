@@ -94,6 +94,9 @@ class SolrAPIView(TemplateView):
             "start": int(rows) * (int(page) - 1),
         }
 
+        if 'indent' in url_query_dict:
+            solr_kwargs['indent'] = 'true'
+            del url_query_dict['indent']
         facet_fields_dict = self.extract_facet_fields(url_query_dict)
         solr_kwargs.update(facet_fields_dict)
         if len(fields) > 0:
