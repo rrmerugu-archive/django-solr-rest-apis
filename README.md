@@ -63,82 +63,92 @@ http://localhost:8000/api/indexing/solr/weblinks?fl=id,url_s&facet_date_field=cr
 
 
 {
-  "data":{
-    "docs":[
+  data:{
+    docs:[
       {
-        "url_s":"https://blog.github.com/category/policy/",
-        "id":"blog.github.com/category/policy/"
+        url_s:"https://blog.github.com/category/policy/",
+        id:"blog.github.com/category/policy/"
       },
       ...
       {
-        "url_s":"https://blog.github.com/2018-03-14-Four-years-of-bug-bounty/",
-        "id":"blog.github.com/2018-03-14-Four-years-of-bug-bounty/"
+        url_s:"https://blog.github.com/index.html",
+        id:"blog.github.com/index.html"
       }
     ],
-    "hits":3380,
-    "debug":{
+    hits:3380,
+    debug:{
 
     },
-    "highlighting":{
+    highlighting:{
 
     },
-    "facets":{
-      "facet_queries":{
+    facets:{
+      facet_queries:{
 
       },
-      "facet_fields":{
+      facet_fields:{
 
       },
-      "facet_ranges":{
-        "created_dt":{
-          "counts":[
-            "2018-03-11T00:00:00Z",
-            0,
-            "2018-03-12T00:00:00Z",
-            0,
-            "2018-03-13T00:00:00Z",
-            0,
-            "2018-03-14T00:00:00Z",
-            0,
-            "2018-03-15T00:00:00Z",
-            3316,
-            "2018-03-16T00:00:00Z",
-            0,
-            "2018-03-17T00:00:00Z",
-            0,
-            "2018-03-18T00:00:00Z",
-            31,
-            "2018-03-19T00:00:00Z",
-            0,
-            "2018-03-20T00:00:00Z",
-            0
+      facet_ranges:{
+        created_dt:{
+          counts:[
+            {
+                2018-03-11T00:00:00Z: 0
+            },
+            {
+                2018-03-12T00:00:00Z: 0
+            },
+            {
+                2018-03-13T00:00:00Z: 0
+            },
+            {
+                2018-03-14T00:00:00Z: 0
+            },
+            {
+                2018-03-15T00:00:00Z: 3316
+            },
+            {
+                2018-03-16T00:00:00Z: 0
+            },
+            {
+                2018-03-17T00:00:00Z: 0
+            },
+            {
+                2018-03-18T00:00:00Z: 31
+            },
+            {
+                2018-03-19T00:00:00Z: 0
+            },
+            {
+                2018-03-20T00:00:00Z: 0
+            }
           ],
-          "gap":"+1DAY",
-          "start":"2018-03-11T00:00:00Z",
-          "end":"2018-03-21T00:00:00Z"
+          gap:"+1DAY",
+          start:"2018-03-11T00:00:00Z",
+          end:"2018-03-21T00:00:00Z"
         }
       },
-      "facet_intervals":{
+      facet_intervals:{
 
       },
-      "facet_heatmaps":{
+      facet_heatmaps:{
 
       }
     },
-    "spellcheck":{
+    spellcheck:{
 
     },
-    "stats":{
+    stats:{
 
     },
-    "qtime":1,
-    "grouped":{
+    qtime:1,
+    grouped:{
 
     },
-    "nextCursorMark":null,
-    "docs_total_pages":169.0
+    nextCursorMark:null,
+    docs_total_pages:169
   },
-  "message":"Ok"
+  message:"Ok"
 }
 ```
 
