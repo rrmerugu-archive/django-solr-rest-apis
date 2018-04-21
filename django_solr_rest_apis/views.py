@@ -157,6 +157,9 @@ class SolrAPIView(TemplateView):
         for k, v in data.get('facets', {}).get('facet_fields', {}).items():
             cleaned_data['facets']['facet_fields'][k] = self.convert_facets_field_to_dict(v)
 
+        for k, v in data.get('facets', {}).get('facet_ranges', {}).items():
+            cleaned_data['facets']['facet_ranges'][k]['counts'] = self.convert_facets_field_to_dict(v['counts'])
+
         cleaned_data['docs'] = self.clean_docs(data.get("docs", []))
         return cleaned_data
 
