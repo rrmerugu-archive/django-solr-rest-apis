@@ -25,10 +25,11 @@ class SolrAPIView(TemplateView):
     http://localhost:8000/api/indexing/solr/weblinks?page=1&facet_fields=status_i,domain_s&fl=id,url_s,created_dt&fq__created_dt=[2018-03-15T12:22:45Z%20TO%202018-03-15T12:22:50Z]
     """
     cached_solr_connections = {}
+    DEFAULT_ROWS_COUNT = 20
 
     def extract_from_query(self):
         url_query_dict = self.request.GET.copy()
-        rows = url_query_dict.get("rows", 20)
+        rows = url_query_dict.get("rows", self.DEFAULT_ROWS_COUNT)
         if "rows" in url_query_dict:
             del url_query_dict['rows']
 
@@ -131,5 +132,6 @@ class SolrAPIView(TemplateView):
             del data['raw_response']
 
         cleaned_data = self.clean_data(data)
+        cleaned_data['docs_total_pages'] = int(cleaned_data['hits']) / int(self.request.GET.get("rows", self.DEFAULT_ROWS_COUNT))
 
         return JsonResponse({"data": cleaned_data, "message": "Ok"}, status=200)

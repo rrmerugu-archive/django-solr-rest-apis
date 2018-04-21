@@ -66,37 +66,34 @@
 
         function generate_query(widget_config, selected_start_date, selected_end_date, page) {
 
-            function format_date(dd){
+            function format_date(dd) {
                 return dd + "T00:00:00Z";
             }
+
             var qs = widget_config.API;
             var fl = widget_config['fields'].join(",");
             qs += "?fl=" + fl;
             qs += "&rows=" + widget_config['paginate_show_rows'];
             qs += "&page=" + page;
-            if (selected_start_date && selected_end_date){
-                qs += "&fq__"+widget_config.filter_date_field +"=[" + format_date(selected_start_date)+" TO "+format_date(selected_end_date)+"]"
+            if (selected_start_date && selected_end_date) {
+                qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date(selected_start_date) + " TO " + format_date(selected_end_date) + "]"
             }
             console.log(qs);
             return qs;
         }
 
+        function set_pagination_listeners() {
+            $("." + widget_id + "page").click(function () {
+                var el = $(this);
+                var page = el.attr('data-page');
+                console.log(page);
+                paginate_data(page);
+            });
+        }
 
-        $("." + widget_id + "page").click(function () {
-            var el = $(this);
-            var page = el.attr('data-page');
-            console.log(page);
-            paginate_data(page);
-        });
 
         function paginate_data(page_num) {
-            // var curret_page = parseInt($('#element_page').val()) + 1;
-            // $('#element_page').val(curret_page);
-            // selected_start_date = "2018-01-11";
-            // selected_end_date = "2018-05-11";
-
-            get_page_date(page_num, null, null)
-
+            get_page_date(page_num, null, null); // no start and end date added;
         }
 
         function get_page_date(page, selected_start_date, selected_end_date) {
@@ -129,11 +126,22 @@
 
                     table_html += '</tbody>';
                     $('#element_data').html("<table class='table table-striped table-bordered'>" + table_html + "</table>");
-                }else{
-                        $('#element_data').html("<p>No data exist with this criteria</p>");
+
+                    var pagination_html = "";
+                    for (i = 0; i <= parseInt(data.data.docs_total_pages); i++) {
+                        pagination_html += '<a href="#" class="widget_page" data-page="' + i + '">' + i + '</a>&nbsp;';
+                    }
+                    $('#element_pagination').html(pagination_html);
+
 
                 }
 
+                else {
+                    $('#element_data').html("<p>No data exist with this criteria</p>");
+                    $('#element_pagination').html("");
+                }
+
+                set_pagination_listeners();
             });
         }
 
@@ -168,6 +176,7 @@
 
         paginate_data(1);
 
-    });
+    })
+    ;
 </script>
 {% endblock %}
