@@ -4,6 +4,7 @@ from django.conf import settings
 import pysolr
 import logging
 import datetime
+
 logger = logging.getLogger(__name__)
 
 SOLR_HOST = settings.__dict__.get('SOLR_HOST', "localhost")
@@ -41,6 +42,8 @@ class SolrAPIView(TemplateView):
             del url_query_dict['facet_fields']
 
         fields = url_query_dict.get('fl', '*').split(",")
+        if fields == ["*"]:
+            fields = []
         if "fl" in url_query_dict:
             del url_query_dict['fl']
 
@@ -55,15 +58,19 @@ class SolrAPIView(TemplateView):
             field_queries_dict = {"*": "*"}
         search_query = " AND ".join(["{}:{}".format(k, v) for k, v in field_queries_dict.items()])
         solr_kwargs = {
-            "fl": fields,
+
             "rows": int(rows),
             "start": int(rows) * (int(page) - 1),
         }
+        if len(fields) > 0:
+            solr_kwargs["fl"] = fields
 
         solr_kwargs["q"] = search_query
         if len(facet_fields) > 0:
             solr_kwargs['facet'] = "on"
             solr_kwargs['facet.field'] = facet_fields.split(",")
+
+        print(search_query)
         return solr_kwargs, search_query
 
     def convert_facets_field_to_dict(self, data):
@@ -96,7 +103,7 @@ class SolrAPIView(TemplateView):
                     cleaned_doc[k] = date_object
                 else:
                     cleaned_doc[k] = v
-                cleaned_docs.append(cleaned_doc)
+            cleaned_docs.append(cleaned_doc)
 
         return cleaned_docs
 
@@ -107,8 +114,6 @@ class SolrAPIView(TemplateView):
 
         cleaned_data['docs'] = self.clean_docs(data.get("docs", []))
         return cleaned_data
-
-
 
     def get(self, request, *args, **kwargs):
         collection_name = kwargs['collection_name']
@@ -129,11 +134,11 @@ class SolrAPIView(TemplateView):
             return JsonResponse({"message": "Failed to connect to the collection: {}".format(collection_name)},
                                 status=400)
 
+        print(data['raw_response'])
         if "raw_response" in data.keys():
             del data['raw_response']
-
         cleaned_data = self.clean_data(data)
-        cleaned_data['docs_total_pages'] = int(cleaned_data['hits']) / int(self.request.GET.get("rows", self.DEFAULT_ROWS_COUNT))
-
+        cleaned_data['docs_total_pages'] = int(cleaned_data['hits']) / int(
+            self.request.GET.get("rows", self.DEFAULT_ROWS_COUNT))
 
         return JsonResponse({"data": cleaned_data, "message": "Ok"}, status=200)
