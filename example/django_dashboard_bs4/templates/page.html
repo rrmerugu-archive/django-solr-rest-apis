@@ -27,13 +27,13 @@
 
                 </div>
             </div>
-            <div>
+            <div class="panel panel-default" id="{{widget_id}}">
                 <div class="row">
                     <div class="col-md-8">
-                        <div id="widget_filters"></div>
+                        <div id="{{widget_id}}filters"></div>
                     </div>
                     <div class="col-md-4">
-                        <button id="widget_date_selector" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                        <button id="{{widget_id}}date_selector" class="btn btn-sm btn-outline-secondary dropdown-toggle">
                             <span></span>
                             This week
                         </button>
@@ -43,11 +43,11 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <div id="widget_data">
+                        <div id="{{widget_id}}data">
                         </div>
-                        <div id="widget_pagination">
+                        <div id="{{widget_id}}pagination">
                         </div>
-                        <input type="hidden" id="widget_page" value="0">
+                        <input type="hidden" id="{{widget_id}}page" value="0">
                     </div>
                 </div>
 
@@ -65,7 +65,7 @@
 <script type="text/javascript">
     $(function () {
 
-        var widget_id = "widget_";
+        var widget_id = "{{widget_id}}";
         var start = moment().subtract(29, 'days');
         var end = moment();
 
@@ -163,10 +163,10 @@
         function render_pagination(data) {
             var pagination_html = '<nav> <ul class="pagination">';
             for (i = 1; i <= parseInt(data.data.docs_total_pages); i++) {
-                pagination_html += '<li class="page-item"><a href="#" class="page-link widget_page" data-page="' + i + '">' + i + '</a></li>';
+                pagination_html += '<li class="page-item"><a href="#" class="page-link {{widget_id}}page" data-page="' + i + '">' + i + '</a></li>';
             }
             pagination_html += '</ul> </nav>';
-            $('#widget_pagination').html(pagination_html);
+            $('#{{widget_id}}pagination').html(pagination_html);
             set_pagination_listeners()
 
         };
@@ -176,11 +176,11 @@
             var filter_nav = '<ul class="nav">';
             $.each(widget_config['filters'], function (i, v) {
                 console.log(v);
-                filter_nav += '<li class="nav-item"> <a class="nav-link widget_filter_class" data-key="' + v.key + '" data-value="' + v.value + '" href="#">' + v.display_name + '</a></li>'
+                filter_nav += '<li class="nav-item"> <a class="nav-link {{widget_id}}filter_class" data-key="' + v.key + '" data-value="' + v.value + '" href="#">' + v.display_name + '</a></li>'
             });
-            $('#widget_filters').html(filter_nav);
+            $('#{{widget_id}}filters').html(filter_nav);
 
-            $('.widget_filter_class').click(function () {
+            $('.{{widget_id}}filter_class').click(function () {
                 $el = $(this);
                 console.log($el);
                 var selected_dates = get_selected_dates();
@@ -213,7 +213,7 @@
             });
 
             table_html += '</tbody>';
-            $('#widget_data').html("<table class='table table-striped table-bordered'>" + table_html + "</table>");
+            $('#{{widget_id}}data').html("<table class='table table-striped table-bordered'>" + table_html + "</table>");
 
         };
 
@@ -236,8 +236,8 @@
                 }
 
                 else {
-                    $('#widget_data').html("<p>No data exist with this criteria</p>");
-                    $('#widget_pagination').html("");
+                    $('#{{widget_id}}data').html("<p>No data exist with this criteria</p>");
+                    $('#{{widget_id}}pagination').html("");
                 }
 
             });
@@ -256,7 +256,7 @@
         };
 
 
-        $('#widget_date_selector').daterangepicker({
+        $('#{{widget_id}}date_selector').daterangepicker({
             startDate: start,
             endDate: end,
             timePicker: true,

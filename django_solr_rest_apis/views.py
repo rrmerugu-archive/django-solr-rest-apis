@@ -4,7 +4,6 @@ from django.conf import settings
 import pysolr
 import logging
 import datetime
-
 logger = logging.getLogger(__name__)
 
 SOLR_HOST = settings.__dict__.get('SOLR_HOST', "localhost")
@@ -109,6 +108,8 @@ class SolrAPIView(TemplateView):
         cleaned_data['docs'] = self.clean_docs(data.get("docs", []))
         return cleaned_data
 
+
+
     def get(self, request, *args, **kwargs):
         collection_name = kwargs['collection_name']
         if collection_name not in self.cached_solr_connections.keys():
@@ -133,5 +134,6 @@ class SolrAPIView(TemplateView):
 
         cleaned_data = self.clean_data(data)
         cleaned_data['docs_total_pages'] = int(cleaned_data['hits']) / int(self.request.GET.get("rows", self.DEFAULT_ROWS_COUNT))
+
 
         return JsonResponse({"data": cleaned_data, "message": "Ok"}, status=200)
