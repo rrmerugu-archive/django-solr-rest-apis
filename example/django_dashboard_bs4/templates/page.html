@@ -24,7 +24,7 @@
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group mr-2">
                     </div>
-                    <button id="reportrange" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                    <button id="widget_date_selector" class="btn btn-sm btn-outline-secondary dropdown-toggle">
                         <span></span>
                         This week
                     </button>
@@ -66,7 +66,7 @@
 
         function generate_query(widget_config, selected_start_date, selected_end_date, page) {
 
-            function format_date(dd) {
+            function format_date_for_solr(dd) {
                 return dd + "T00:00:00Z";
             }
 
@@ -76,7 +76,7 @@
             qs += "&rows=" + widget_config['paginate_show_rows'];
             qs += "&page=" + page;
             if (selected_start_date && selected_end_date) {
-                qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date(selected_start_date) + " TO " + format_date(selected_end_date) + "]"
+                qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date_for_solr(selected_start_date) + " TO " + format_date_for_solr(selected_end_date) + "]"
             }
             console.log(qs);
             return qs;
@@ -86,22 +86,44 @@
             $("." + widget_id + "page").click(function () {
                 var el = $(this);
                 var page = el.attr('data-page');
-                console.log(page);
                 paginate_data(page);
             });
         }
 
 
         function paginate_data(page_num) {
-            get_page_date(page_num, null, null); // no start and end date added;
+            //check there are any dates selected, if yes use it or null
+
+            var selected_date_string = $("#" + widget_id + "date_selector span").html();
+            console.log(selected_date_string)
+
+            function format_date(dd) {
+                dd = new Date(dd);
+                console.log(dd);
+                return dd.getFullYear() + "-" + (dd.getMonth() < 9 ? '0': '') + (dd.getMonth()+1)   + "-" + dd.getDate();
+            }
+
+            if (selected_date_string) {
+                var selected_start_date_dt = selected_date_string.split("-")[0].replace(/^\s+|\s+$/g, '');
+                var selected_end_date_dt = selected_date_string.split("-")[1].replace(/^\s+|\s+$/g, '');
+
+                selected_start_date = format_date(selected_start_date_dt);
+                selected_end_date = format_date(selected_end_date_dt);
+
+            } else {
+                var selected_start_date = null;
+                var selected_end_date = null;
+
+            }
+            console.log(selected_date_string, selected_start_date, selected_end_date,);
+
+            get_page_date(page_num, selected_start_date, selected_end_date); // no start and end date added;
         }
 
         function get_page_date(page, selected_start_date, selected_end_date) {
             var api_url = generate_query(widget_config, selected_start_date, selected_end_date, page);
-            console.log(widget_config);
 
             $.get(api_url, function (data, status) {
-                console.log("Data: " + data.data.docs + "\nStatus: " + status);
                 var docs = data.data.docs;
 
                 if (docs.length > 0) {
@@ -115,7 +137,7 @@
                         table_header += '<th>' + key + '</th>';
                     });
                     table_header += "</tr>";
-                    var table_html = '<thead> ' + table_header + ' </thead> <tbody>';
+                    var table_html = '<thead>' + table_header + ' </thead> <tbody>';
                     $.each(docs, function (idx, row) {
                         table_html += '<tr>';
                         $.each(header_keys, function (key, value) {
@@ -131,8 +153,9 @@
                     for (i = 1; i <= parseInt(data.data.docs_total_pages); i++) {
                         pagination_html += '<li class="page-item"><a href="#" class="page-link widget_page" data-page="' + i + '">' + i + '</a></li>';
                     }
-                    pagination_html +='</ul> </nav>';
+                    pagination_html += '</ul> </nav>';
                     $('#element_pagination').html(pagination_html);
+                    set_pagination_listeners()
 
                 }
 
@@ -141,7 +164,6 @@
                     $('#element_pagination').html("");
                 }
 
-                set_pagination_listeners();
             });
         }
 
@@ -150,8 +172,7 @@
             var selected_end_date = end.format('YYYY-MM-D');
             console.log(selected_start_date, selected_end_date);
 
-
-            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            $('#' + widget_id + 'date_selector span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
             page = 1;
             get_page_date(page, selected_start_date, selected_end_date);
 
@@ -159,7 +180,7 @@
         };
 
 
-        $('#reportrange').daterangepicker({
+        $('#widget_date_selector').daterangepicker({
             startDate: start,
             endDate: end,
             timePicker: true,
