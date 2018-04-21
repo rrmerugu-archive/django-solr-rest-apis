@@ -32,7 +32,17 @@
             {% endif %}
             <div id="{{widget.widget_id}}data">
             </div>
-            <div id="{{widget.widget_id}}pagination">
+            <div class="">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="{{widget.widget_id}}pagination">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p id="{{widget.widget_id}}pagination-text"></p>
+                    </div>
+
+                </div>
             </div>
             <input type="hidden" id="{{widget.widget_id}}page" value="0">
         </div>
@@ -140,7 +150,6 @@
             // }
 
 
-
             function get_pages(page, totalPages) {
 
                 $pagination_elems = [];
@@ -206,15 +215,16 @@
             }
 
 
-           $pagination_elems =  get_pages(page, data.data.docs_total_pages);
+            $pagination_elems = get_pages(page, data.data.docs_total_pages);
             console.log($pagination_elems);
 
-             var pagination_html = '<nav> <ul class="pagination">';
-             pagination_html += $pagination_elems.join("");
+            var pagination_html = '<nav> <ul class="pagination">';
+            pagination_html += $pagination_elems.join("");
 
             pagination_html += '</ul> </nav>';
 
-           $('#{{widget.widget_id}}pagination').html(pagination_html);
+            $('#{{widget.widget_id}}pagination').html(pagination_html);
+            $('#{{widget.widget_id}}pagination-text').html("Showing page " + page + " of total " + data.data.docs_total_pages + " pages");
             set_pagination_listeners()
 
         };
