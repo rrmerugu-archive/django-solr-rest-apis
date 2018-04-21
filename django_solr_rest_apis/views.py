@@ -52,7 +52,7 @@ class SolrAPIView(TemplateView):
                 field_queries_dict[k] = v
 
         if len(field_queries_dict.keys()) == 0:
-            final_query_dict = {"*": "*"}
+            field_queries_dict = {"*": "*"}
         search_query = " AND ".join(["{}:{}".format(k, v) for k, v in field_queries_dict.items()])
         solr_kwargs = {
             "fl": fields,
