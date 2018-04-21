@@ -49,7 +49,7 @@
         var start = moment().subtract(29, 'days');
         var end = moment();
 
-        var widget_config ={{widget | safe}}
+        var widget_config = {{widget | safe}};
 
         function generate_query(widget_config, selected_start_date, selected_end_date, page, query_dict) {
 
@@ -132,16 +132,93 @@
         }
 
 
-        function render_pagination(data) {
-            var pagination_html = '<nav> <ul class="pagination">';
-            for (i = 1; i <= parseInt(data.data.docs_total_pages); i++) {
-                pagination_html += '<li class="page-item"><a href="#" class="page-link {{widget.widget_id}}page" data-page="' + i + '">' + i + '</a></li>';
+        function render_pagination(page, data) {
+
+
+            // for (i = 1; i <= parseInt(data.data.docs_total_pages); i++) {
+            //     pagination_html += '<li class="page-item"><a href="#" class="page-link {{widget.widget_id}}page" data-page="' + i + '">' + i + '</a></li>';
+            // }
+
+
+
+            function get_pages(page, totalPages) {
+
+                $pagination_elems = [];
+                page = parseInt(page);
+                if (totalPages > 1) {
+
+                    SHOW_MAX_PAGES = 5;
+
+                    var pages_toshow = [];
+                    var minPage = 1;
+                    var maxPage = 5;
+                    if (totalPages >= SHOW_MAX_PAGES) {
+                        x = totalPages - page;
+
+                        if (x >= SHOW_MAX_PAGES) { // 16 > 2
+                            minPage = page;
+                            maxPage = page + SHOW_MAX_PAGES;
+                        } else {
+                            pages_to_right_count = totalPages - page;
+                            pages_to_left_count = SHOW_MAX_PAGES - pages_to_right_count;
+                            minPage = page - pages_to_left_count;
+                            maxPage = page + pages_to_right_count;
+                        }
+                    } else {
+                        // show all the pages
+                        pages_to_right_count = totalPages - page;
+                        pages_to_left_count = SHOW_MAX_PAGES - pages_to_right_count;
+                        minPage = page - pages_to_left_count;
+                        maxPage = page + pages_to_right_count;
+                    }
+                    if (minPage <= 0) {
+                        minPage = 1;
+                    }
+
+
+                    if (page > 0) {
+
+
+                        if ((page - 1) >= 1 && totalPages >= SHOW_MAX_PAGES) {
+                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="1" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-double-left"></span><<</a></li>');
+                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="' + (page - 1) + '" class="page-link {{widget.widget_id}}page"><span class="fa fa-angle-left"></span><</a></li>');
+                        }
+                        for (i = minPage; i <= maxPage; i++) {
+                            if (i == page) {
+                                active = "active"
+                            } else {
+                                active = "";
+                            }
+                            $pagination_elems.push('<li class="page-item ' + active + '"><a href="#" data-page="' + i + '" class="page-link {{widget.widget_id}}page">' + i + '</a></li>');
+                        }
+
+                        if (maxPage != totalPages && totalPages >= SHOW_MAX_PAGES) {
+                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="' + (page + 1) + '" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-right "></span>> </a></li>');
+                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="' + totalPages + '" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-double-right"></span> >> </a></li>');
+
+                        }
+                    }
+
+
+                }
+                return $pagination_elems;
+
             }
+
+
+           $pagination_elems =  get_pages(page, data.data.docs_total_pages);
+            console.log($pagination_elems);
+
+             var pagination_html = '<nav> <ul class="pagination">';
+             pagination_html += $pagination_elems.join("");
+
             pagination_html += '</ul> </nav>';
-            $('#{{widget.widget_id}}pagination').html(pagination_html);
+
+           $('#{{widget.widget_id}}pagination').html(pagination_html);
             set_pagination_listeners()
 
         };
+
 
         function render_filters(widget_config) {
 
@@ -221,11 +298,9 @@
                     .color(d3.scale.category10().range());
 
                 chart.xAxis
-                    // .showMaxMin(false)
+                // .showMaxMin(false)
                     .tickFormat(function (d) {
-                        console.log(d);
                         var dx = data[0].values[d] && data[0].values[d][0] || 0;
-                        console.log(d, dx, new Date(dx));
                         return d3.time.format('%x')(new Date(dx))
                     });
 
@@ -252,7 +327,6 @@
             });
 
 
-
         };
 
         function get_page_date(page, selected_start_date, selected_end_date, query_dict) {
@@ -264,7 +338,7 @@
 
                 if (docs.length > 0) {
                     render_table(docs);
-                    render_pagination(data);
+                    render_pagination(page, data);
                     render_filters(widget_config);
                     if (data.data.facets) {
                         $.each(data.data.facets.facet_ranges, function (k, v) {

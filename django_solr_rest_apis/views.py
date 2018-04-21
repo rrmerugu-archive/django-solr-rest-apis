@@ -4,6 +4,7 @@ from django.conf import settings
 import pysolr
 import logging
 import datetime
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -186,8 +187,8 @@ class SolrAPIView(TemplateView):
         if "raw_response" in data.keys():
             del data['raw_response']
         cleaned_data = self.clean_data(data)
-        cleaned_data['docs_total_pages'] = int(cleaned_data['hits']) / int(
-            self.request.GET.get("rows", self.DEFAULT_ROWS_COUNT))
+        cleaned_data['docs_total_pages'] = math.ceil(int(cleaned_data['hits']) / int(
+            self.request.GET.get("rows", self.DEFAULT_ROWS_COUNT)))
 
         return JsonResponse({"data": cleaned_data, "message": "Ok"}, status=200)
 
