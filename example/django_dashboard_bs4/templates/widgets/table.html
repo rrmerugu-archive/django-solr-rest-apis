@@ -23,6 +23,11 @@
 
     <div class="row">
         <div class="col-md-12">
+            <div id="{{widget.widget_id}}graph">
+                <div id="chart{{widget.widget_id}}">
+                    <svg></svg>
+                </div>
+            </div>
             <div id="{{widget.widget_id}}data">
             </div>
             <div id="{{widget.widget_id}}pagination">
@@ -42,7 +47,7 @@
         var start = moment().subtract(29, 'days');
         var end = moment();
 
-        var widget_config = {{widget|safe}}
+        var widget_config ={{widget | safe}}
 
         function generate_query(widget_config, selected_start_date, selected_end_date, page, query_dict) {
 
@@ -58,14 +63,22 @@
             if (selected_start_date && selected_end_date) {
                 qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date_for_solr(selected_start_date) + " TO " + format_date_for_solr(selected_end_date) + "]"
             }
-            if (widget_config.facet_range){
-                qs +="&facet_date_field=" +  widget_config.filter_date_field;
+            if (widget_config.facet_range) {
+                qs += "&facet_date_field=" + widget_config.filter_date_field;
             }
             if (query_dict) {
                 $.each(query_dict, function (k, v) {
                     qs += "&fq__" + k + "=" + v;
                 });
-
+            }
+            //&facet_date_field_start=2018-03-01T00:00:00Z&facet_date_field_end=2018-05-01T00:00:00Z
+            if (widget_config.filter_date_field) {
+                if (selected_start_date) {
+                    qs += "&facet_date_field_start=" + format_date_for_solr(selected_start_date);
+                }
+                if (selected_end_date) {
+                    qs += "&facet_date_field_end=" + format_date_for_solr(selected_end_date);
+                }
             }
 
             console.log(qs);
@@ -170,7 +183,73 @@
 
         };
 
-        function render_graph() {
+
+        function render_graph(display_name, data) {
+
+            function reformat_dictionary_for_d3(display_name, list_of_dicts) {
+
+                var values_list = [];
+                $.each(list_of_dicts, function (i, each_row) {
+                    $.each(each_row, function (k, v) {
+                        values_list.push([k.replace("T", " "), v])
+                    });
+                });
+                return {
+                    "key": display_name,
+                    "bar": true,
+                    "values": values_list
+                }
+            }
+
+            var graph_selector = '#chart{{widget.widget_id}} svg';
+            // $(graph_selector).remove();
+
+            data = [reformat_dictionary_for_d3(display_name, data)];
+            console.log(data);
+
+            nv.addGraph(function () {
+                var chart = nv.models.linePlusBarChart()
+                // .margin({top: 30, right: 60, bottom: 50, left: 70})
+                    .x(function (d, i) {
+                        return i;
+                    })
+                    .y(function (d) {
+                        return d[1]
+                    })
+                    .color(d3.scale.category10().range());
+
+                chart.xAxis
+                    // .showMaxMin(false)
+                    .tickFormat(function (d) {
+                        console.log(d);
+                        var dx = data[0].values[d] && data[0].values[d][0] || 0;
+                        console.log(d, dx, new Date(dx));
+                        return d3.time.format('%x')(new Date(dx))
+                    });
+
+                chart.y1Axis
+                    .tickFormat(d3.format(',f'));
+
+                // chart.y2Axis
+                //     .tickFormat(function (d) {
+                //         return '$' + d3.format(',f')(d)
+                //     });
+                chart.focusEnable(false)
+
+                chart.bars.forceY([0]);
+
+                d3.select(graph_selector)
+                    .datum(data)
+                    .transition().duration(500)
+                    .call(chart)
+                ;
+
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+
+
 
         };
 
@@ -184,8 +263,14 @@
                 if (docs.length > 0) {
                     render_table(docs);
                     render_pagination(data);
-                    render_filters(widget_config)
-                    render_graph();
+                    render_filters(widget_config);
+                    if (data.data.facets) {
+                        $.each(data.data.facets.facet_ranges, function (k, v) {
+                            render_graph(k, data.data.facets.facet_ranges[k]['counts']);
+
+                        });
+                    }
+
                 }
 
                 else {
