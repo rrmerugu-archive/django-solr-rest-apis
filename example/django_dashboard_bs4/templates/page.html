@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Company name</a>
+    <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+    <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+            <a class="nav-link" href="#">Sign out</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+
+        {% include 'left-navbar.html' %}
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group mr-2">
+                    </div>
+                    <button id="reportrange" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                        <span></span>
+                        This week
+                    </button>
+                </div>
+            </div>
+
+
+        </main>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block django_dashboard_bs4_media %}
+<script type="text/javascript">
+    $(function () {
+
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        function process_date_filter(start, end) {
+
+
+            var selected_start_date = start.format('YYYY-MM-D');
+            var selected_end_date = end.format('YYYY-MM-D');
+            console.log(selected_start_date, selected_end_date);
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        };
+
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            endDate: end,
+            timePicker: true,
+
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+        }, process_date_filter);
+
+        process_date_filter(start, end);
+
+    });
+</script>
+{% endblock %}
