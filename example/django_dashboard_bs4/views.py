@@ -25,7 +25,7 @@ widgets = [
         }],
         'paginate_by': 6,
         'filter_date_field': "created_dt",
-        'facet_range': 'true'
+        # 'facet_range': 'true'
     },
     {
         'name': "WebFeeds Collection",
