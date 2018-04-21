@@ -45,7 +45,7 @@ class SolrAPIView(TemplateView):
 
         facet_fields_dict = {}
         if len(facet_fields) > 0 or facet_date_field:
-            facet_fields_dict['facet'] = "true"
+            facet_fields_dict['facet'] = "on"
             facet_limit = int(url_query.get('facet_limit', 10))
             if 'facet_limit' in url_query:
                 del url_query['facet_limit']

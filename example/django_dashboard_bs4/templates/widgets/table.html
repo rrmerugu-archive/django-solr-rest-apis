@@ -58,6 +58,9 @@
             if (selected_start_date && selected_end_date) {
                 qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date_for_solr(selected_start_date) + " TO " + format_date_for_solr(selected_end_date) + "]"
             }
+            if (widget_config.facet_range){
+                qs +="&facet_date_field=" +  widget_config.filter_date_field;
+            }
             if (query_dict) {
                 $.each(query_dict, function (k, v) {
                     qs += "&fq__" + k + "=" + v;

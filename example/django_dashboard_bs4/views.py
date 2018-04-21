@@ -24,7 +24,8 @@ widgets = [
             'display_name': "Github"
         }],
         'paginate_by': 6,
-        'filter_date_field': "created_dt"
+        'filter_date_field': "created_dt",
+        'facet_range': 'true'
     },
     {
         'name': "WebFeeds Collection",
@@ -32,7 +33,8 @@ widgets = [
         'fields': ['id', 'title_s', 'domain_s', 'pub_date_dt'],
         'filters': [],
         'paginate_by': 6,
-        'filter_date_field': "pub_date_dt"
+        'filter_date_field': "pub_date_dt",
+        'facet_range': 'true'
     }
 ]
 
