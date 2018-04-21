@@ -30,14 +30,14 @@
                     </button>
                 </div>
             </div>
-            <div id="element_data">
-
+            <div>
+                <div id="element_filters"></div>
+                <div id="element_data">
+                </div>
+                <div id="element_pagination">
+                </div>
+                <input type="hidden" id="element_page" value="0">
             </div>
-            <div id="element_pagination">
-                <a href="#" class="widget_page" data-page="1">1</a>&nbsp;
-                <a href="#" class="widget_page" data-page="2">2</a>&nbsp;
-            </div>
-            <input type="hidden" id="element_page" value="0">
 
 
         </main>
@@ -60,14 +60,23 @@
             fields: ['id', 'domain_s', 'created_dt'],
             filters: [{
                 'key': 'status_i',
-                'value': 'Status'
+                'value': '404',
+                'display_name': "404 Status"
+            }, {
+                'key': 'domain_s',
+                'value': 'medium.com',
+                'display_name': "medium.com"
+            }, {
+                'key': 'domain_s',
+                'value': 'blog.github.com',
+                'display_name': "Github"
             }],
             paginate_by: 2,
             paginate_show_rows: 2,
             filter_date_field: "created_dt"
         };
 
-        function generate_query(widget_config, selected_start_date, selected_end_date, page) {
+        function generate_query(widget_config, selected_start_date, selected_end_date, page, query_dict) {
 
             function format_date_for_solr(dd) {
                 return dd + "T00:00:00Z";
@@ -80,6 +89,12 @@
             qs += "&page=" + page;
             if (selected_start_date && selected_end_date) {
                 qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date_for_solr(selected_start_date) + " TO " + format_date_for_solr(selected_end_date) + "]"
+            }
+            if (query_dict) {
+                $.each(query_dict, function (k, v) {
+                    qs += "&fq__" + k + "=" + v;
+                });
+
             }
 
             console.log(qs);
@@ -94,10 +109,7 @@
             });
         }
 
-
-        function paginate_data(page_num) {
-            //check there are any dates selected, if yes use it or null
-
+        function get_selected_dates() {
             var selected_date_string = $("#" + widget_id + "date_selector span").html();
             console.log(selected_date_string)
 
@@ -119,59 +131,84 @@
                 var selected_end_date = null;
 
             }
-            console.log(selected_date_string, selected_start_date, selected_end_date,);
-
-            get_page_date(page_num, selected_start_date, selected_end_date); // no start and end date added;
+            return {
+                selected_start_date: selected_start_date,
+                selected_end_date: selected_end_date
+            }
         }
 
-        function get_page_date(page, selected_start_date, selected_end_date) {
-            var api_url = generate_query(widget_config, selected_start_date, selected_end_date, page);
+        function paginate_data(page_num) {
+            //check there are any dates selected, if yes use it or null
+
+            var selected_dates = get_selected_dates();
+            console.log(selected_dates.selected_start_date, selected_dates.selected_end_date,);
+            get_page_date(page_num, selected_dates.selected_start_date, selected_dates.selected_end_date); // no start and end date added;
+        }
 
 
-            function render_pagination(data) {
-                var pagination_html = '<nav> <ul class="pagination">';
-                for (i = 1; i <= parseInt(data.data.docs_total_pages); i++) {
-                    pagination_html += '<li class="page-item"><a href="#" class="page-link widget_page" data-page="' + i + '">' + i + '</a></li>';
-                }
-                pagination_html += '</ul> </nav>';
-                $('#element_pagination').html(pagination_html);
-                set_pagination_listeners()
+        function render_pagination(data) {
+            var pagination_html = '<nav> <ul class="pagination">';
+            for (i = 1; i <= parseInt(data.data.docs_total_pages); i++) {
+                pagination_html += '<li class="page-item"><a href="#" class="page-link widget_page" data-page="' + i + '">' + i + '</a></li>';
+            }
+            pagination_html += '</ul> </nav>';
+            $('#element_pagination').html(pagination_html);
+            set_pagination_listeners()
 
-            };
+        };
 
-            function render_filters(widget_config) {
-                $.each(widget_config['filters'], function (i, v) {
+        function render_filters(widget_config) {
 
+            var filter_nav = '<ul class="nav">';
+            $.each(widget_config['filters'], function (i, v) {
+                console.log(v);
+                filter_nav += '<li class="nav-item"> <a class="nav-link widget_filter_class" data-key="' + v.key + '" data-value="' + v.value + '" href="#">' + v.display_name + '</a></li>'
+            });
+            $('#element_filters').html(filter_nav);
+
+            $('.widget_filter_class').click(function () {
+                $el = $(this);
+                console.log($el);
+                var selected_dates = get_selected_dates();
+                console.log(selected_dates.selected_start_date, selected_dates.selected_end_date);
+
+                selected_filter = {}
+                selected_filter[$el.attr('data-key')] = $el.attr('data-value');
+                get_page_date(1, selected_dates.selected_start_date, selected_dates.selected_end_date, selected_filter); // no start and end date added;
+
+            });
+        };
+
+        function render_table(docs) {
+            first_row = docs[0];
+            table_header = "<tr>";
+
+            header_keys = [];
+            $.each(first_row, function (key, value) {
+                header_keys.push(key);
+                table_header += '<th>' + key + '</th>';
+            });
+            table_header += "</tr>";
+            var table_html = '<thead>' + table_header + ' </thead> <tbody>';
+            $.each(docs, function (idx, row) {
+                table_html += '<tr>';
+                $.each(header_keys, function (key, value) {
+                    table_html += '<td>' + row[value] + '</td>';
                 });
-            };
+                table_html += '</tr>';
+            });
 
-            function render_table(docs) {
-                first_row = docs[0];
-                table_header = "<tr>";
+            table_html += '</tbody>';
+            $('#element_data').html("<table class='table table-striped table-bordered'>" + table_html + "</table>");
 
-                header_keys = [];
-                $.each(first_row, function (key, value) {
-                    header_keys.push(key);
-                    table_header += '<th>' + key + '</th>';
-                });
-                table_header += "</tr>";
-                var table_html = '<thead>' + table_header + ' </thead> <tbody>';
-                $.each(docs, function (idx, row) {
-                    table_html += '<tr>';
-                    $.each(header_keys, function (key, value) {
-                        table_html += '<td>' + row[value] + '</td>';
-                    });
-                    table_html += '</tr>';
-                });
+        };
 
-                table_html += '</tbody>';
-                $('#element_data').html("<table class='table table-striped table-bordered'>" + table_html + "</table>");
+        function render_graph() {
 
-            };
+        };
 
-            function render_graph() {
-
-            };
+        function get_page_date(page, selected_start_date, selected_end_date, query_dict) {
+            var api_url = generate_query(widget_config, selected_start_date, selected_end_date, page, query_dict);
 
 
             $.get(api_url, function (data, status) {
