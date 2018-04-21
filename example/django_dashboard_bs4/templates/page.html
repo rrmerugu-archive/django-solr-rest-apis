@@ -60,16 +60,23 @@
             fields: ['id', 'domain_s', 'created_dt'],
             filters: [],
             paginate_by: 2,
-            paginate_show_rows: 10,
+            paginate_show_rows: 2,
             filter_date_field: "created_dt"
         };
 
         function generate_query(widget_config, selected_start_date, selected_end_date, page) {
+
+            function format_date(dd){
+                return dd + "T00:00:00Z";
+            }
             var qs = widget_config.API;
             var fl = widget_config['fields'].join(",");
             qs += "?fl=" + fl;
             qs += "&rows=" + widget_config['paginate_show_rows'];
             qs += "&page=" + page;
+            if (selected_start_date && selected_end_date){
+                qs += "&fq__"+widget_config.filter_date_field +"=[" + format_date(selected_start_date)+" TO "+format_date(selected_end_date)+"]"
+            }
             console.log(qs);
             return qs;
         }
@@ -99,6 +106,7 @@
             $.get(api_url, function (data, status) {
                 console.log("Data: " + data.data.docs + "\nStatus: " + status);
                 var docs = data.data.docs;
+
                 if (docs.length > 0) {
 
                     first_row = docs[0];
@@ -121,6 +129,9 @@
 
                     table_html += '</tbody>';
                     $('#element_data').html("<table class='table table-striped table-bordered'>" + table_html + "</table>");
+                }else{
+                        $('#element_data').html("<p>No data exist with this criteria</p>");
+
                 }
 
             });
@@ -133,6 +144,7 @@
 
 
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            page = 1;
             get_page_date(page, selected_start_date, selected_end_date);
 
 
