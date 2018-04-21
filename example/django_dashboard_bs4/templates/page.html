@@ -33,6 +33,11 @@
             <div id="element_data">
 
             </div>
+            <div id="element_pagination">
+                <a href="#" class="widget_page" data-page="1">1</a>&nbsp;
+                <a href="#" class="widget_page" data-page="2">2</a>&nbsp;
+            </div>
+            <input type="text" id="element_page" value="0">
 
 
         </main>
@@ -46,37 +51,49 @@
 <script type="text/javascript">
     $(function () {
 
-
+        var widget_id = "widget_";
         var start = moment().subtract(29, 'days');
         var end = moment();
 
+        var widget_config = {
+            API: "/api/indexing/solr/weblinks",
+            fields: ['id', 'domain_s', 'created_dt'],
+            filters: [],
+            paginate_by: 2,
+            paginate_show_rows: 10,
+            filter_date_field: "created_dt"
+        };
 
-        function generate_query(widget_config, selected_start_date, selected_end_date) {
+        function generate_query(widget_config, selected_start_date, selected_end_date, page) {
             var qs = widget_config.API;
             var fl = widget_config['fields'].join(",");
             qs += "?fl=" + fl;
-            var page = widget_config['paginate_by']
-            qs += "&rows=" + page;
+            qs += "&rows=" + widget_config['paginate_show_rows'];
+            qs += "&page=" + page;
             console.log(qs);
             return qs;
         }
 
-        function process_date_filter(start, end) {
-            var selected_start_date = start.format('YYYY-MM-D');
-            var selected_end_date = end.format('YYYY-MM-D');
-            console.log(selected_start_date, selected_end_date);
 
-            var widget_config = {
-                API: "/api/indexing/solr/weblinks",
-                fields: ['id', 'domain_s', 'created_dt'],
-                filters: [],
-                paginate_by: 5,
-                filter_date_field: "created_dt"
-            };
-            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        $("." + widget_id + "page").click(function () {
+            var el = $(this);
+            var page = el.attr('data-page');
+            console.log(page);
+            paginate_data(page);
+        });
 
+        function paginate_data(page_num) {
+            // var curret_page = parseInt($('#element_page').val()) + 1;
+            // $('#element_page').val(curret_page);
+            selected_start_date = "2018-01-11"
+            selected_end_date = "2018-05-11"
 
-            var api_url = generate_query(widget_config, selected_start_date, selected_end_date);
+            get_page_date(page_num, selected_start_date, selected_end_date)
+
+        }
+
+        function get_page_date(page, selected_start_date, selected_end_date) {
+            var api_url = generate_query(widget_config, selected_start_date, selected_end_date, page);
             console.log(widget_config);
 
             $.get(api_url, function (data, status) {
@@ -97,7 +114,7 @@
                     $.each(docs, function (idx, row) {
                         table_html += '<tr>';
                         $.each(header_keys, function (key, value) {
-                            table_html += '<td>' + row[value]+ '</td>';
+                            table_html += '<td>' + row[value] + '</td>';
                         });
                         table_html += '</tr>';
                     });
@@ -107,9 +124,20 @@
                 }
 
             });
+        }
+
+        function process_date_filter(start, end) {
+            var selected_start_date = start.format('YYYY-MM-D');
+            var selected_end_date = end.format('YYYY-MM-D');
+            console.log(selected_start_date, selected_end_date);
+
+
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            get_page_date(page, selected_start_date, selected_end_date);
 
 
         };
+
 
         $('#reportrange').daterangepicker({
             startDate: start,
@@ -126,7 +154,7 @@
             },
         }, process_date_filter);
 
-        process_date_filter(start, end);
+        paginate_data(1);
 
     });
 </script>
