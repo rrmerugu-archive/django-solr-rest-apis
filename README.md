@@ -1,3 +1,7 @@
+# Django Solr Query
+
+This module helps django query the solr using pysolr module and return
+the json of the solr result.
 
 
 In `INSTALLED_APPS` of `settings.py` add `django_solr_rest_apis`,
