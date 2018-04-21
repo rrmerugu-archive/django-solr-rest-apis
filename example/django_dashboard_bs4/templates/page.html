@@ -30,6 +30,14 @@
             <div class="panel panel-default" id="{{widget_id}}">
                 <div class="row">
                     <div class="col-md-8">
+                        <h3>WebLinks Status</h3>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
                         <div id="{{widget_id}}filters"></div>
                     </div>
                     <div class="col-md-4">
@@ -84,8 +92,7 @@
                 'value': 'blog.github.com',
                 'display_name': "Github"
             }],
-            paginate_by: 2,
-            paginate_show_rows: 2,
+            paginate_by: 6,
             filter_date_field: "created_dt"
         };
 
@@ -98,7 +105,7 @@
             var qs = widget_config.API;
             var fl = widget_config['fields'].join(",");
             qs += "?fl=" + fl;
-            qs += "&rows=" + widget_config['paginate_show_rows'];
+            qs += "&rows=" + widget_config['paginate_by'];
             qs += "&page=" + page;
             if (selected_start_date && selected_end_date) {
                 qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date_for_solr(selected_start_date) + " TO " + format_date_for_solr(selected_end_date) + "]"
