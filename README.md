@@ -4,6 +4,9 @@ This module helps django query the solr using pysolr module and return
 the json of the solr result.
 
 
+- stats
+- facets
+
 ## Install the module
 
 ```bash
