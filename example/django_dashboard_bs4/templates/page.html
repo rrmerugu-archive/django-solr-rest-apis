@@ -37,7 +37,7 @@
                 <a href="#" class="widget_page" data-page="1">1</a>&nbsp;
                 <a href="#" class="widget_page" data-page="2">2</a>&nbsp;
             </div>
-            <input type="text" id="element_page" value="0">
+            <input type="hidden" id="element_page" value="0">
 
 
         </main>
@@ -128,12 +128,11 @@
                     $('#element_data').html("<table class='table table-striped table-bordered'>" + table_html + "</table>");
 
                     var pagination_html = '<nav> <ul class="pagination">';
-                    for (i = 0; i <= parseInt(data.data.docs_total_pages); i++) {
+                    for (i = 1; i <= parseInt(data.data.docs_total_pages); i++) {
                         pagination_html += '<li class="page-item"><a href="#" class="page-link widget_page" data-page="' + i + '">' + i + '</a></li>';
                     }
-                    pagination_html +='  </ul> </nav>';
+                    pagination_html +='</ul> </nav>';
                     $('#element_pagination').html(pagination_html);
-
 
                 }
 
