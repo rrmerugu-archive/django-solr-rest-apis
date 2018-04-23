@@ -166,7 +166,6 @@
 
                             $.each(list_of_docs, function (k, doc) {
                                 d = ([doc[field], doc[widget_config.filter_date_field]]);
-
                                 each_data['values'].push(d)
                             });
                             graph_data.push(each_data)
@@ -190,22 +189,18 @@
             nv.addGraph(function () {
                 var chart = nv.models.cumulativeLineChart()
                     .x(function (d) {
-                        console.log(d);
                         dd = d[1].replace("T", " ").replace("Z", "");
-
-                        console.log(dd);
                         return parseDate(moment.utc(dd).format("YYYY-MM-DD HH:mm:ss"))
                     })
                     .y(function (d) {
-                        return d[0]
+                        return parseInt(d[0]) * 100;
                     }) //adjusting, 100% is 1.00, not 100 as it is in the data
                     .color(d3.scale.category10().range())
-                .height({{widget.height}});;
+                .height({{widget.height}});
 
                 chart.xAxis
                     .tickFormat(function (d) {
                         // return d3.time.format('%x')(new Date(d));
-                        console.log(d, moment.utc(d), parseDate(moment.utc(d).format("YYYY-MM-DD HH:mm:ss")));
                         return d3.time.format('%x')(parseDate(moment.utc(d).format("YYYY-MM-DD HH:mm:ss")));
                     });
 
