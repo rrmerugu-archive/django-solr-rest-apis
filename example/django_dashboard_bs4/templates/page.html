@@ -28,7 +28,13 @@
                 </div>
             </div>
             {% for widget in widgets %}
-                {% include 'widgets/table.html' with widget=widget %}
+                {% if widget.widget_type == 'table' %}
+                    {% include 'widgets/table.html' with widget=widget %}
+                {% elif  widget.widget_type == "graph" %}
+                    {% include 'widgets/graph.html' with widget=widget %}
+                {% else%}
+                {% endif %}
+
             {% endfor %}
         </main>
 

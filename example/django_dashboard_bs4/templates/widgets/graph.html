@@ -1,0 +1,282 @@
+<div class="card mb-4 mt-1" id="{{widget.widget_id}}">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 id="{{widget.widget_id}}title"></h3>
+                <hr>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-8">
+                <div id="{{widget.widget_id}}filters"></div>
+            </div>
+            <div class="col-md-4">
+                <button id="{{widget.widget_id}}date_selector"
+                        class="btn btn-sm btn-outline-secondary float-right dropdown-toggle">
+                    <span></span>
+
+                </button>
+            </div>
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-md-12">
+                {% if widget.facet_range %}
+                <div id="{{widget.widget_id}}graph">
+                    <div id="chart{{widget.widget_id}}" style="height: {{widget.height}}px;">
+                        <svg></svg>
+                    </div>
+                </div>
+                {% endif %}
+                <div id="{{widget.widget_id}}data">
+                </div>
+                <div class="">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div id="{{widget.widget_id}}pagination">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <p id="{{widget.widget_id}}pagination-text"></p>
+                        </div>
+
+                    </div>
+                </div>
+                <input type="hidden" id="{{widget.widget_id}}page" value="0">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block django_dashboard_bs4_media %}
+<script type="text/javascript">
+    $(function () {
+
+        var widget_id = "{{widget.widget_id}}";
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        var widget_config = {{ widget | safe}}
+        ;
+
+
+        $('#{{widget.widget_id}}title').html(widget_config.name);
+
+        function generate_query(widget_config, selected_start_date, selected_end_date) {
+
+            function format_date_for_solr(dd) {
+                return dd + "T00:00:00Z";
+            }
+
+            var qs = widget_config.API;
+            var fl = widget_config['fields'].join(",");
+            qs += "?fl=" + fl;
+            qs += "&rows=" + widget_config['paginate_by'];
+            if (selected_start_date && selected_end_date) {
+                qs += "&fq__" + widget_config.filter_date_field + "=[" + format_date_for_solr(selected_start_date) + " TO " + format_date_for_solr(selected_end_date) + "]"
+            }
+
+            //&facet_date_field_start=2018-03-01T00:00:00Z&facet_date_field_end=2018-05-01T00:00:00Z
+            if (widget_config.filter_date_field) {
+                if (selected_start_date) {
+                    qs += "&facet_date_field_start=" + format_date_for_solr(selected_start_date);
+                }
+                if (selected_end_date) {
+                    qs += "&facet_date_field_end=" + format_date_for_solr(selected_end_date);
+                }
+            }
+
+            console.log(qs);
+            return qs;
+        }
+
+
+        function get_selected_dates() {
+            var selected_date_string = $("#" + widget_id + "date_selector span").html();
+            console.log(selected_date_string);
+
+            function format_date(dd) {
+                dd = new Date(dd);
+                console.log(dd);
+                return dd.getFullYear() + "-" + (dd.getMonth() < 9 ? '0' : '') + (dd.getMonth() + 1) + "-" + dd.getDate();
+            }
+
+            console.log("selected_date_string: ", selected_date_string);
+            if (selected_date_string) {
+                var selected_start_date_dt = selected_date_string.split("-")[0].replace(/^\s+|\s+$/g, '');
+                var selected_end_date_dt = selected_date_string.split("-")[1].replace(/^\s+|\s+$/g, '');
+
+                selected_start_date = format_date(selected_start_date_dt);
+                selected_end_date = format_date(selected_end_date_dt);
+
+            } else {
+                var selected_start_date = null;
+                var selected_end_date = null;
+
+            }
+            return {
+                selected_start_date: selected_start_date,
+                selected_end_date: selected_end_date
+            }
+        }
+
+        function paginate_data() {
+            //check there are any dates selected, if yes use it or null
+
+            var selected_dates = get_selected_dates();
+            console.log("paginate_data :", selected_dates);
+            if (selected_dates.selected_start_date) {
+                var selected_start_date = selected_dates.selected_start_date;
+
+            } else {
+                var selected_start_date = widget_config.start_date;
+            }
+
+            if (selected_dates.selected_end_date) {
+                var selected_end_date = selected_dates.selected_end_date;
+            } else {
+                var selected_end_date = widget_config.end_date;
+            }
+            console.log(selected_start_date, selected_end_date);
+
+            get_page_date(selected_start_date, selected_end_date); // no start and end date added;
+        }
+
+
+        function render_graph(data) {
+
+            function reformat_dictionary_for_d3( list_of_docs) {
+
+                var graph_data = []
+                $.each(widget_config.fields, function (i, field) {
+
+                        if (field === 'id') {
+                        }
+                        else  if (field === widget_config.filter_date_field){
+
+                        }else{
+                            each_data = {};
+                            each_data['key'] = field;
+                            each_data['bar'] = true;
+                            each_data['values'] = [];
+
+                            $.each(list_of_docs, function (k, doc) {
+                                d = ([doc[field], doc[widget_config.filter_date_field]]);
+
+                                each_data['values'].push(d)
+                            });
+                            graph_data.push(each_data)
+                        }
+                });
+                return graph_data;
+            }
+
+            var graph_selector = '#chart{{widget.widget_id}} svg';
+            // $(graph_selector).remove();
+
+            var formated_data = reformat_dictionary_for_d3(data);
+
+
+            console.log("=====", formated_data);
+
+
+            var parseDate = d3.time.format("%Y-%m-%d %X").parse; //27-May-12 16:00:00. This is used for D3JS parsing
+            var formatTime = d3.time.format("%Y-%m-%d %X");// Format tooltip date / time
+
+            nv.addGraph(function () {
+                var chart = nv.models.cumulativeLineChart()
+                    .x(function (d) {
+                        console.log(d);
+                        dd = d[1].replace("T", " ").replace("Z", "");
+
+                        console.log(dd);
+                        return parseDate(moment.utc(dd).format("YYYY-MM-DD HH:mm:ss"))
+                    })
+                    .y(function (d) {
+                        return d[0]
+                    }) //adjusting, 100% is 1.00, not 100 as it is in the data
+                    .color(d3.scale.category10().range())
+                .height({{widget.height}});;
+
+                chart.xAxis
+                    .tickFormat(function (d) {
+                        // return d3.time.format('%x')(new Date(d));
+                        console.log(d, moment.utc(d), parseDate(moment.utc(d).format("YYYY-MM-DD HH:mm:ss")));
+                        return d3.time.format('%x')(parseDate(moment.utc(d).format("YYYY-MM-DD HH:mm:ss")));
+                    });
+
+                chart.yAxis
+                    .tickFormat(function (d) {
+                        return d;
+                    });
+
+                d3.select(graph_selector)
+                    .datum(formated_data)
+                    .transition().duration(500)
+                    .call(chart);
+
+                //TODO: Figure out a good way to do this automatically
+        //         nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+
+        };
+
+        function get_page_date(selected_start_date, selected_end_date) {
+            var api_url = generate_query(widget_config, selected_start_date, selected_end_date);
+
+            $($('#{{widget.widget_id}}date_selector').find('span')[0]).html(moment(selected_start_date).format('MMMM D, YYYY') + " - " + moment(selected_end_date).format('MMMM D, YYYY'));
+
+            $.get(api_url, function (data, status) {
+                var docs = data.data.docs;
+
+                if (docs.length > 0) {
+                    render_graph(docs);
+
+
+                }
+
+                else {
+                    $('#{{widget.widget_id}}data').html("<p>No data exist with this criteria</p>");
+                }
+
+
+            });
+        }
+
+        function process_date_filter(start, end) {
+            var selected_start_date = start.format('YYYY-MM-D');
+            var selected_end_date = end.format('YYYY-MM-D');
+
+            $('#' + widget_id + 'date_selector span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+
+            get_page_date(selected_start_date, selected_end_date);
+
+
+        };
+
+
+        $('#{{widget.widget_id}}date_selector').daterangepicker({
+            startDate: start,
+            endDate: end,
+            timePicker: true,
+
+            ranges: {
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+        }, process_date_filter);
+
+        paginate_data(1);
+
+    })
+    ;
+</script>
+{% endblock %}
