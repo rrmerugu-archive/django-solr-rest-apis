@@ -7,39 +7,7 @@ import datetime
 logger = logging.getLogger(__name__)
 
 widgets = [
-    # {
-    #     'widget_type': 'table',
-    #     'name': "Weblinks Collection",
-    #     'API': "/api/indexing/solr/weblinks",
-    #     'fields': ['id', 'domain_s', 'created_dt'],
-    #     'filters': [{
-    #         'key': 'status_i',
-    #         'value': '404',
-    #         'display_name': "404 Status"
-    #     }, {
-    #         'key': 'domain_s',
-    #         'value': 'medium.com',
-    #         'display_name': "medium.com"
-    #     }, {
-    #         'key': 'domain_s',
-    #         'value': 'blog.github.com',
-    #         'display_name': "Github"
-    #     }],
-    #     'paginate_by': 6,
-    #     'filter_date_field': "created_dt",
-    #
-    #     'facet_range': 'true' # graph on/off
-    # },
-    # {
-    #     'widget_type': 'table',
-    #     'name': "WebFeeds Collection",
-    #     'API': "/api/indexing/solr/website_feeds",
-    #     'fields': ['id', 'title_s', 'domain_s', 'pub_date_dt'],
-    #     'filters': [],
-    #     'paginate_by': 6,
-    #     'filter_date_field': "pub_date_dt",
-    #     'facet_range': 'true'
-    # },
+
     {
         'widget_type': 'graph',
         'name': "test Analytics Collection",
@@ -50,7 +18,40 @@ widgets = [
         'filter_date_field': "created_dt",
         'facet_range': 'true',
         "height": 450
-    }
+    },
+    {
+        'widget_type': 'table',
+        'name': "Weblinks Collection",
+        'API': "/api/indexing/solr/weblinks",
+        'fields': ['id', 'domain_s', 'created_dt'],
+        'filters': [{
+            'key': 'status_i',
+            'value': '404',
+            'display_name': "404 Status"
+        }, {
+            'key': 'domain_s',
+            'value': 'medium.com',
+            'display_name': "medium.com"
+        }, {
+            'key': 'domain_s',
+            'value': 'blog.github.com',
+            'display_name': "Github"
+        }],
+        'paginate_by': 6,
+        'filter_date_field': "created_dt",
+
+        'facet_range': 'true' # graph on/off
+    },
+    {
+        'widget_type': 'table',
+        'name': "WebFeeds Collection",
+        'API': "/api/indexing/solr/website_feeds",
+        'fields': ['id', 'title_s', 'domain_s', 'pub_date_dt'],
+        'filters': [],
+        'paginate_by': 6,
+        'filter_date_field': "pub_date_dt",
+        'facet_range': 'true'
+    },
 ]
 
 
