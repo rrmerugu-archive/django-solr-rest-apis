@@ -214,8 +214,8 @@
 
 
                         if ((page - 1) >= 1 && totalPages >= SHOW_MAX_PAGES) {
-                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="1" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-double-left"></span><<</a></li>');
-                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="' + (page - 1) + '" class="page-link {{widget.widget_id}}page"><span class="fa fa-angle-left"></span><</a></li>');
+                            $pagination_elems.push('<li class="page-item next "><a href="javascript:void();" data-page="1" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-double-left"></span><<</a></li>');
+                            $pagination_elems.push('<li class="page-item next "><a href="javascript:void();"  data-page="' + (page - 1) + '" class="page-link {{widget.widget_id}}page"><span class="fa fa-angle-left"></span><</a></li>');
                         }
                         for (i = minPage; i <= maxPage; i++) {
                             if (i == page) {
@@ -223,12 +223,12 @@
                             } else {
                                 active = "";
                             }
-                            $pagination_elems.push('<li class="page-item ' + active + '"><a href="#" data-page="' + i + '" class="page-link {{widget.widget_id}}page">' + i + '</a></li>');
+                            $pagination_elems.push('<li class="page-item ' + active + '"><a href="javascript:void();"  data-page="' + i + '" class="page-link {{widget.widget_id}}page">' + i + '</a></li>');
                         }
 
                         if (maxPage != totalPages && totalPages >= SHOW_MAX_PAGES) {
-                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="' + (page + 1) + '" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-right "></span>> </a></li>');
-                            $pagination_elems.push('<li class="page-item next "><a href="#" data-page="' + totalPages + '" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-double-right"></span> >> </a></li>');
+                            $pagination_elems.push('<li class="page-item next "><a href="javascript:void();"  data-page="' + (page + 1) + '" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-right "></span>> </a></li>');
+                            $pagination_elems.push('<li class="page-item next "><a href="javascript:void();"  data-page="' + totalPages + '" class="page-link {{widget.widget_id}}page"><span class=" fa fa-angle-double-right"></span> >> </a></li>');
 
                         }
                     }
@@ -259,7 +259,7 @@
 
             var filter_nav = '<ul class="nav">';
             $.each(widget_config['filters'], function (i, v) {
-                filter_nav += '<li class="nav-item"> <a class="nav-link {{widget.widget_id}}filter_class" data-key="' + v.key + '" data-value="' + v.value + '" href="#">' + v.display_name + '</a></li>'
+                filter_nav += '<li class="nav-item"> <a class="nav-link {{widget.widget_id}}filter_class" data-key="' + v.key + '" data-value="' + v.value + '" href="javascript:void();" >' + v.display_name + '</a></li>'
             });
             $('#{{widget.widget_id}}filters').html(filter_nav);
 
