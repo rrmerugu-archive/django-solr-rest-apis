@@ -227,18 +227,23 @@
 
         };
 
+
+       function clean_graph(){
+            $($('#chart{{widget.widget_id}}').find('svg')[0]).html("");
+        }
+
         function get_page_date(selected_start_date, selected_end_date) {
             var api_url = generate_query(widget_config, selected_start_date, selected_end_date);
 
             $($('#{{widget.widget_id}}date_selector').find('span')[0]).html(moment(selected_start_date).format('MMMM D, YYYY') + " - " + moment(selected_end_date).format('MMMM D, YYYY'));
+
+            clean_graph()
 
             $.get(api_url, function (data, status) {
                 var docs = data.data.docs;
 
                 if (docs.length > 0) {
                     render_graph(docs);
-
-
                 }
 
                 else {
