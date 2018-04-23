@@ -29,15 +29,15 @@ widgets = [
 
         # 'facet_range': 'true'
     },
-    {
-        'name': "WebFeeds Collection",
-        'API': "/api/indexing/solr/website_feeds",
-        'fields': ['id', 'title_s', 'domain_s', 'pub_date_dt'],
-        'filters': [],
-        'paginate_by': 6,
-        'filter_date_field': "pub_date_dt",
-        'facet_range': 'true'
-    }
+    # {
+    #     'name': "WebFeeds Collection",
+    #     'API': "/api/indexing/solr/website_feeds",
+    #     'fields': ['id', 'title_s', 'domain_s', 'pub_date_dt'],
+    #     'filters': [],
+    #     'paginate_by': 6,
+    #     'filter_date_field': "pub_date_dt",
+    #     'facet_range': 'true'
+    # }
 ]
 
 

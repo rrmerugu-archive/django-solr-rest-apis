@@ -106,13 +106,18 @@
             $("." + widget_id + "page").click(function () {
                 var el = $(this);
                 var page = el.attr('data-page');
+
+
+
+                var selected_dates  = get_selected_dates();
+                console.log(selected_dates);
                 paginate_data(page);
             });
         }
 
         function get_selected_dates() {
             var selected_date_string = $("#" + widget_id + "date_selector span").html();
-            console.log(selected_date_string)
+            console.log(selected_date_string);
 
             function format_date(dd) {
                 dd = new Date(dd);
@@ -120,6 +125,7 @@
                 return dd.getFullYear() + "-" + (dd.getMonth() < 9 ? '0' : '') + (dd.getMonth() + 1) + "-" + dd.getDate();
             }
 
+            console.log("selected_date_string: ", selected_date_string);
             if (selected_date_string) {
                 var selected_start_date_dt = selected_date_string.split("-")[0].replace(/^\s+|\s+$/g, '');
                 var selected_end_date_dt = selected_date_string.split("-")[1].replace(/^\s+|\s+$/g, '');
@@ -142,19 +148,20 @@
             //check there are any dates selected, if yes use it or null
 
             var selected_dates = get_selected_dates();
-            console.log(selected_dates.selected_end_date);
+            console.log("paginate_data :", selected_dates);
             if (selected_dates.selected_start_date){
                 var selected_start_date = selected_dates.selected_start_date;
 
             } else{
                 var selected_start_date = widget_config.start_date;
-
             }
+
             if (selected_dates.selected_end_date){
                 var selected_end_date = selected_dates.selected_end_date;
             }else{
                 var selected_end_date = widget_config.end_date;
             }
+            console.log(selected_start_date, selected_end_date);
 
             get_page_date(page_num, selected_start_date, selected_end_date); // no start and end date added;
         }
@@ -362,7 +369,7 @@
 
 
             console.log(selected_start_date)
-            $('#{{widget.widget_id}}date_selector').html(moment(selected_start_date).format('MMMM D, YYYY') + " - "+ moment(selected_end_date).format('MMMM D, YYYY'));
+            $($('#{{widget.widget_id}}date_selector').find('span')[0]).html(moment(selected_start_date).format('MMMM D, YYYY') + " - "+ moment(selected_end_date).format('MMMM D, YYYY'));
 
             $.get(api_url, function (data, status) {
                 var docs = data.data.docs;
